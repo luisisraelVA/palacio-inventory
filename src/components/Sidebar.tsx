@@ -1,5 +1,6 @@
-import { Link, useLocation } from "@tanstack/react-router";
-import { LayoutDashboard, ScanLine, Wine } from "lucide-react";
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
+import { LayoutDashboard, ScanLine, Wine, LogOut } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 const links = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -8,6 +9,13 @@ const links = [
 
 export function Sidebar() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate({ to: "/login", replace: true });
+  };
+
   return (
     <aside className="hidden md:flex md:w-64 md:flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border">
       <div className="px-6 py-6 border-b border-sidebar-border">
@@ -40,8 +48,16 @@ export function Sidebar() {
           );
         })}
       </nav>
-      <div className="px-6 py-4 border-t border-sidebar-border text-xs text-sidebar-foreground/50">
-        v1.0 · Mock data
+      
+      {/* Botón de Cerrar Sesión (Escritorio) */}
+      <div className="p-3 border-t border-sidebar-border">
+        <button
+          onClick={handleLogout}
+          className="flex w-full items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+        >
+          <LogOut className="size-4" />
+          Cerrar Sesión
+        </button>
       </div>
     </aside>
   );
@@ -49,8 +65,15 @@ export function Sidebar() {
 
 export function MobileNav() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate({ to: "/login", replace: true });
+  };
+
   return (
-    <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-sidebar text-sidebar-foreground border-t border-sidebar-border grid grid-cols-2">
+    <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-sidebar text-sidebar-foreground border-t border-sidebar-border grid grid-cols-3">
       {links.map(({ to, label, icon: Icon }) => {
         const active = pathname === to;
         return (
@@ -62,10 +85,19 @@ export function MobileNav() {
             }`}
           >
             <Icon className="size-5" />
-            {label}
+            <span className="truncate w-full text-center px-1">{label}</span>
           </Link>
         );
       })}
+      
+      {/* Botón de Cerrar Sesión (Móvil) */}
+      <button
+        onClick={handleLogout}
+        className="flex flex-col items-center justify-center gap-1 py-3 text-xs text-sidebar-foreground/70 hover:text-destructive"
+      >
+        <LogOut className="size-5" />
+        Salir
+      </button>
     </nav>
   );
 }
